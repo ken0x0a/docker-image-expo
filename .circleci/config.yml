@@ -16,7 +16,7 @@ executors:
   docker-commander:
     environment:
       IMAGE_NAME: ken0x0a/expo
-      GET_GIT_COMMIT_MSG: git log --format=%B -n 1 $CIRCLE_SHA1
+      GET_GIT_COMMIT_MSG: git log --format=%B -n 1
       DOCKER_CACHE_NAME: image.tar
     docker:
       - image: docker:17.05.0-ce-git
@@ -32,10 +32,11 @@ jobs: # a collection of steps
           name: debug ENV
           command: echo $($GET_GIT_COMMIT_MSG)
       - run:
+          name: debug PWD
+          command: pwd
+      - run:
           name: validate expo-cli version
-          command: |
-            version=$( echo $($GET_GIT_COMMIT_MSG) | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' )
-            [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
+          command: ./scripts/verify_version.sh $($GET_GIT_COMMIT_MSG)
       - restore_cache:
           name: Restore Cache
           keys:
@@ -50,7 +51,7 @@ jobs: # a collection of steps
           command: ./scripts/build.sh $IMAGE_NAME
       - run:
           name: test
-          command: docker run --rm df0a2bad9781 w 2>&1
+          command: ./scripts/build.sh $IMAGE_NAME:latest
       - run:
           name: Save Docker image layer cache
           command: |
