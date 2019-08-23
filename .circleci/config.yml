@@ -19,7 +19,7 @@ executors:
       GET_GIT_COMMIT_MSG: git log --format=%B -n 1
       DOCKER_CACHE_NAME: image.tar
     docker:
-      - image: docker:17.05.0-ce-git
+      - image: circleci/buildpack-deps:buster-scm
     working_directory: ~/workdir # directory where steps will run
 
 jobs: # a collection of steps
