@@ -1,0 +1,88 @@
+#
+# ## Refernces
+#
+# - https://circleci.com/blog/update-how-circleci-processes-over-30-million-builds-per-month/
+# - https://github.com/JCMais/docker-building-on-ci/blob/master/.circleci/config.yml
+#
+# To validate this config, run the following command.
+#
+# - `circleci config validate`
+#
+
+version: 2.1 # use CircleCI 2.1
+
+# https://circleci.com/docs/2.0/configuration-reference/#executors-requires-version-21
+executors:
+  docker-commander:
+    environment:
+      IMAGE_NAME: ken0x0a/expo
+      GET_GIT_COMMIT_MSG: git log --format=%B -n 1 $CIRCLE_SHA1
+      DOCKER_CACHE_NAME: image.tar
+    docker:
+      - image: docker:17.05.0-ce-git
+    working_directory: ~/workdir # directory where steps will run
+
+jobs: # a collection of steps
+  build-and-test-docker-image:
+    executor: docker-commander
+    steps:
+      - checkout # Check out source code to working directory
+      - setup_remote_docker # Allocate a new Docker Engine
+      - run:
+          name: debug ENV
+          command: echo $($GET_GIT_COMMIT_MSG)
+      - run:
+          name: validate expo-cli version
+          command: |
+            version=$( echo $($GET_GIT_COMMIT_MSG) | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' )
+            [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
+      - restore_cache:
+          name: Restore Cache
+          keys:
+            - v1-{{ .Branch }}
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i /caches/$DOCKER_CACHE_NAME | true
+      - run:
+          name: build docker image
+          command: ./scripts/build.sh $IMAGE_NAME
+      - run:
+          name: test
+          command: docker run --rm df0a2bad9781 w 2>&1
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir /caches
+            docker save -o /caches/$DOCKER_CACHE_NAME app
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ epoch }}
+          paths:
+            - /caches/$DOCKER_CACHE_NAME
+
+      #
+      # publish
+      # https://circleci.com/docs/2.0/building-docker-images/#example
+      #
+      - run:
+          name: publish
+          command: |
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+            docker push $IMAGE_NAME || true
+
+# https://circleci.com/docs/2.0/workflows/#branch-level-job-execution
+workflows:
+  version: 2
+  build-test-release:
+    jobs:
+      - build-and-test-docker-image
+      # - publish:
+      #     filters: # using regex filters requires the entire branch to match
+      #       branches:
+      #         only: master
+      #     requires:
+      #       - build-and-test-docker-image
+      # - update-docs:
+      #     requires:
+      #       - publish
