@@ -28,12 +28,12 @@ jobs: # a collection of steps
     steps:
       - checkout # Check out source code to working directory
       - setup_remote_docker # Allocate a new Docker Engine
-      - run:
-          name: debug ENV
-          command: echo $($GET_GIT_COMMIT_MSG)
-      - run:
-          name: debug PWD
-          command: pwd
+      # - run:
+      #     name: debug ENV
+      #     command: echo $($GET_GIT_COMMIT_MSG)
+      # - run:
+      #     name: debug PWD
+      #     command: pwd
       - run:
           name: validate expo-cli version
           command: ./scripts/verify_version.sh "$($GET_GIT_COMMIT_MSG)"
@@ -45,7 +45,7 @@ jobs: # a collection of steps
           name: Load Docker image layer cache
           command: |
             set +o pipefail
-            docker load -i /caches/$DOCKER_CACHE_NAME | true
+            docker load -i ./caches/$DOCKER_CACHE_NAME | true
       - run:
           name: build docker image
           command: ./scripts/build.sh $IMAGE_NAME "$($GET_GIT_COMMIT_MSG)"
@@ -55,12 +55,12 @@ jobs: # a collection of steps
       - run:
           name: Save Docker image layer cache
           command: |
-            mkdir /caches
-            docker save -o /caches/$DOCKER_CACHE_NAME app
+            mkdir ./caches
+            docker save -o ./caches/$DOCKER_CACHE_NAME $IMAGE_NAME
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
-            - /caches/$DOCKER_CACHE_NAME
+            - ./caches/$DOCKER_CACHE_NAME
 
       #
       # publish
