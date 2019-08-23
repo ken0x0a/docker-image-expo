@@ -9,5 +9,6 @@ if [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo $version
 else
   echo "INVALID VERSION"
+  echo $version
   exit 1
 fi

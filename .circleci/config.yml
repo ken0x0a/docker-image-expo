@@ -36,7 +36,7 @@ jobs: # a collection of steps
           command: pwd
       - run:
           name: validate expo-cli version
-          command: ./scripts/verify_version.sh $($GET_GIT_COMMIT_MSG)
+          command: ./scripts/verify_version.sh "$($GET_GIT_COMMIT_MSG)"
       - restore_cache:
           name: Restore Cache
           keys:
