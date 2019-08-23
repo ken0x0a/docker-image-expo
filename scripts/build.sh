@@ -16,8 +16,13 @@ if [ ! $EXPO_CLI_VERSION ]; then
   exit 1
 fi
 
+echo "build docker image for"
+echo "  EXPO_CLI_VERSION = $EXPO_CLI_VERSION"
+echo "  NODE_VERSION = $NODE_VERSION"
+echo "  IMAGE_NAME = $IMAGE_NAME"
+
 docker build \
-  --cache-from=$IMAGE_NAME
+  --cache-from=$IMAGE_NAME \
   --build-arg=NODE_VERSION=$NODE_VERSION \
   --build-arg=EXPO_CLI_VERSION=$EXPO_CLI_VERSION \
   --tag=$IMAGE_NAME:cli-${EXPO_CLI_VERSION}_node-$NODE_VERSION \
