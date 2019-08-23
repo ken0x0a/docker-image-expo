@@ -2,6 +2,7 @@
 # ## Refernces
 #
 # - https://circleci.com/blog/update-how-circleci-processes-over-30-million-builds-per-month/
+# - https://circleci.com/blog/using-circleci-workflows-to-replicate-docker-hub-automated-builds/
 # - https://github.com/JCMais/docker-building-on-ci/blob/master/.circleci/config.yml
 #
 # To validate this config, run the following command.
