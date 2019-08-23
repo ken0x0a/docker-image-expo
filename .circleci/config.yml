@@ -48,10 +48,10 @@ jobs: # a collection of steps
             docker load -i /caches/$DOCKER_CACHE_NAME | true
       - run:
           name: build docker image
-          command: ./scripts/build.sh $IMAGE_NAME
+          command: ./scripts/build.sh $IMAGE_NAME "$($GET_GIT_COMMIT_MSG)"
       - run:
           name: test
-          command: ./scripts/build.sh $IMAGE_NAME:latest
+          command: ./scripts/test.sh $IMAGE_NAME:latest
       - run:
           name: Save Docker image layer cache
           command: |
