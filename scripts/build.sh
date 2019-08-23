@@ -29,4 +29,4 @@ docker build \
   --tag=$IMAGE_NAME:cli-$EXPO_CLI_VERSION \
   --tag=$IMAGE_NAME:$EXPO_CLI_VERSION \
   --tag=$IMAGE_NAME:latest \
-  .
+  ./docker-expo-cli
